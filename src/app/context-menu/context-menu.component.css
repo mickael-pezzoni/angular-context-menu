@@ -1,0 +1,8 @@
+:host {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  background-color: rgb(53, 53, 163);
+  color: white;
+}
