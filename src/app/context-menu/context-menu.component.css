@@ -3,6 +3,8 @@
   display: flex;
   flex-direction: column;
   z-index: 100;
-  background-color: rgb(53, 53, 163);
-  color: white;
+  padding: 5px;
+  background-color: white;
+  /* background-color: rgb(53, 53, 163); */
+  color: black;
 }

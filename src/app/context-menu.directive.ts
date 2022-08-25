@@ -1,16 +1,22 @@
+import { MatMenu } from '@angular/material/menu';
 import {
+  Compiler,
   ComponentFactoryResolver,
   Directive,
   ElementRef,
   EventEmitter,
   HostListener,
+  InjectionToken,
+  Injector,
   Input,
   Output,
+  TemplateRef,
   ViewContainerRef,
 } from '@angular/core';
 import { Subject, timer } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { ContextMenuService } from './context-menu.service';
+import { ContextMenuComponent } from './context-menu/context-menu.component';
 
 export interface ContextMenuEvent {
   x: number;
@@ -23,12 +29,15 @@ export class ContextMenuDirective {
   isTouched = false;
   @Input() delay = 500;
   @Output() readonly contextMenu = new EventEmitter<void>();
+  @Input() template!: TemplateRef<unknown>;
   event?: TouchEvent;
   private readonly isDestroyed$ = new Subject();
 
   constructor(
     private readonly viewContainerRef: ViewContainerRef,
     private readonly elementRef: ElementRef,
+    private readonly compiler: Compiler,
+    // private readonly injector: Injector,
     private readonly componentFactoryResolver: ComponentFactoryResolver,
     private readonly contextMenuService: ContextMenuService
   ) {}
@@ -77,12 +86,8 @@ export class ContextMenuDirective {
     this.isTouched = false;
   }
 
-  private async open(event: ContextMenuEvent): Promise<void> {
-    const { ContextMenuComponent } = await import(
-      './context-menu/context-menu.component'
-    );
-    const contextMenuFactory =
-      this.componentFactoryResolver.resolveComponentFactory(
+  private open(event: ContextMenuEvent): void {
+      const contextMenuFactory =this.componentFactoryResolver.resolveComponentFactory(
         ContextMenuComponent
       );
     const contextMenuRef =
@@ -90,6 +95,9 @@ export class ContextMenuDirective {
 
     contextMenuRef.instance.x = event.x;
     contextMenuRef.instance.y = event.y;
+    contextMenuRef.instance.template = this.template;
+    // const module = await this.compiler.compileModuleAsync(MatMenu);
+    this.contextMenuService.setRef(contextMenuRef);
   }
 
   ngOnDestroy(): void {
